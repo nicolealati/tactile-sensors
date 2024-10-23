@@ -25,13 +25,20 @@ def main():
     original_format = "npy"
     save_format = "txt"
 
-    folder_list = ["cube-sliding", "cube-stationary", 
-                   "cylinder-sliding", "cylinder-stationary",
-                   "noise-grasp", "noise-grasp-stationary", "noise-stationary", 
-                   "push-to-thumb", 
-                   "sphere-sliding", "sphere-stationary"]
+    # folder_list = ["cube-sliding", "cube-stationary", 
+    #                "cylinder-sliding", "cylinder-stationary",
+    #                "noise-grasp", "noise-grasp-stationary", "noise-stationary", 
+    #                "push-to-thumb", 
+    #                "sphere-sliding", "sphere-stationary"]
 
-    finger_list = ["thumb", "index", "middle", "ring", "little"]
+    # finger_list = ["thumb", "index", "middle", "ring", "little"]
+
+    folder_list = ["cylinder-filter"]
+
+    finger_list = ["thumb", "index", "middle", "ring", "little", 
+                   "filtered_thumb", "filtered_index", "filtered_middle", "filtered_ring", "filtered_little" ]
+
+
     taxel_list = list(range(8))
     # taxel_list = [str(taxel) for taxel in list(range(8))]
 
