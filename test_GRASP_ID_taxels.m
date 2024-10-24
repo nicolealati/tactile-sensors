@@ -1,69 +1,89 @@
 %% ALGORITMO PER L'IDENTIFICAZIONE DEL GRASP DA SEGNALE
+%%%% THRESHOLD TASSELLO PER TASSELLO
 clc, clear all
 
 folder = "signals_txt";
 test = "cylinder-stationary";
-finger = "index";
+finger = "middle";
+
+filter_bool = 0;
+f = funcUseFilter(filter_bool);
+finger = sprintf("%s%s", f, finger);
+
 disp(' '), disp([test, finger])
 
 save_fig = 0;
 
-% INIZIALIZZAZIONE variabili/parametri per l'identificazione del grasp
+threshold_ampiezza_vect = 1.8;
+threshold_samples = 1500;
+disp(threshold_samples), disp(threshold_ampiezza_vect)
+
 taxel = 1:8; % In python, da 0 a 7
 fs = 250;
 
 % Filtro passa-banda
-fc = [0.03, 0.3];
-% fc = [0.05 5]; 
+%fc = [0.03, 0.3];
+fc = [0.05 5];
 order = 2;
 type = 'bandpass';
+
 limit = 50;
+if filter_bool
+    limit = limit/5;
+end
+  
 
-threshold_ampiezza_vect = 1.8;
-threshold_samples = 1500;
-
-disp(threshold_samples)
-disp(threshold_ampiezza_vect)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% LOAD SEGNALI e FILTRAGGIO
-[n_samples, ~] = size(csvread(fullfile(folder, test, sprintf("%s_t%d.txt", finger, 0))));
+[n_samples, ~] = size(csvread(fullfile(folder, test, sprintf("%s-t%d.txt", finger, 0))));
 
 % Pre-allocazione della matrice (8x n_samples) per i segnali
 all_signals = zeros(length(taxel), n_samples);
-filtered_signals = zeros(size(all_signals));
-abs_filtered_signals =  zeros(size(all_signals));
+filt_signals = zeros(size(all_signals));
+abs_signals =  zeros(size(all_signals));
 rms_filtered_signals =  zeros(size(all_signals));
 
 % #RIGA = #TASSELLO (TASSELLO-1 per Python)
 for t = taxel
 
     % Definizione del path in cartella
-    txt_path = fullfile(folder, test, sprintf("%s_t%d.txt", finger, t-1));
+    txt_path = fullfile(folder, test, sprintf("%s-t%d.txt", finger, t-1));
 
     % Salvo il segnale in variabile temporanea
     temp_signal = csvread(txt_path);
 
-    % Salvo segnali (grezzo, filtrato, valore assoluto del filtrato
+    % Salvo segnale da txt in matrice
     all_signals(t, :) = temp_signal';
-    filtered_signals(t, :) = funcButter(temp_signal', order, fc, fs, type);
-    abs_filtered_signals(t, :) = abs(filtered_signals(t, :));
-    rms_filtered_signals(t, :) = filtered_signals(t, :).^2;
+
+    % Applico filtro (se serve)
+    if filter_bool % filtro già applicato onlone
+        filt_signals(t, :) = all_signals(t, :);
+    else % filtro non applicato online
+        filt_signals(t, :) = funcButter(temp_signal', order, fc, fs, type);
+    end
+
+    % Calcolo abs e rms
+    abs_signals(t, :) = abs(filt_signals(t, :));
+    rms_filtered_signals(t, :) = filt_signals(t, :).^2;
 end
 
 %%% ALGORITMO
-algoritm_signals = abs_filtered_signals;
+algoritm_signals = abs_signals;
+n_figure = 1;
 
 for threshold_ampiezza = threshold_ampiezza_vect
 
-    threshold_ampiezza_2 = threshold_ampiezza/1.5; 
+    threshold_ampiezza_2 = threshold_ampiezza/1.5;
 
     % Inizializzazioe variabili
     grasp = 0;
     counter_release = 0;
     n_grasp = 1;
 
-    fig3 = figure(3);
-    fig3.WindowState = 'maximized';
+    n_figure = 1;
+    fig1 = figure(n_figure);
+    fig1.WindowState = 'maximized';
     clf
 
     % Per ogni tassello, plot del segnale filtrato e del valore assoluto
@@ -72,13 +92,13 @@ for threshold_ampiezza = threshold_ampiezza_vect
         xlim([0,n_samples])
         ylim([-limit, limit])
         plot(all_signals(t, :))
-        plot(filtered_signals(t, :), 'LineWidth', 1)
-        plot(abs_filtered_signals(t, :));
+        plot(filt_signals(t, :), 'LineWidth', 1)
+        plot(abs_signals(t, :));
         % plot(rms_filtered_signals(t, :), 'y')
         yline(threshold_ampiezza,'k--', 'LineWidth', 1.5)
         yline(threshold_ampiezza_2,'k-.', 'LineWidth', 1)
     end
-   
+
     % Iter su ogni valore
     for n = 1:n_samples
         current_value = algoritm_signals(:, n); % vettore colonna 8x1
@@ -144,16 +164,17 @@ for threshold_ampiezza = threshold_ampiezza_vect
     end
 
     subplot(421)
-    text(0, 90, sprintf('TEST = %s, FINGER = %s', test, finger),'Color','k', 'FontWeight','bold', FontSize=10)
-    text(0, 75, sprintf('Th Samples = %d, Th Amp = %d', threshold_samples, threshold_ampiezza), FontSize=8)
+    text(0, 1.5*limit, sprintf('TEST = %s, FINGER = %s', test, finger),'Color','k', 'FontWeight','bold', FontSize=10)
+    text(0, 1.3*limit, sprintf('Th Samples = %d, Th Amp = %.2f', threshold_samples, threshold_ampiezza), FontSize=8)
+
+    %%% SAVE FIGURE
+    folder_save = sprintf('figures/fig-grasp-id-taxels/s(%d)a(%.2f)', threshold_samples, threshold_ampiezza);
+    name_figure = sprintf('%s-%s-s(%d)a(%.2f).png', test, finger, threshold_samples, threshold_ampiezza);
     
-    if save_fig
-        folder_save = sprintf('figures/grasp-identification/s%d-a%d', threshold_samples, threshold_ampiezza);
-        funcCreateFolder(folder_save)
-        fpath_save = fullfile(folder_save, sprintf('%s-%s-s%d-a%d.png', test, finger, threshold_samples, threshold_ampiezza));
-        saveas(3, fpath_save);
-        close all
-    end
+    funcSaveFigure(save_fig, n_figure, folder_save, name_figure, @funcCreateFolder)
+    % close all
+    
+    n_figure = n_figure+1;
 end
 
 disp('END')
