@@ -13,7 +13,7 @@ def CreateFolder(path):
 
 def SaveNewFormat(load_file_path, taxel, save_file_path):
     signal = np.load(load_file_path)
-    np.savetxt(save_file_path, signal[:,taxel], fmt='%i', delimiter=';')
+    np.savetxt(save_file_path, signal[:,taxel], fmt='%f', delimiter=';')
 
 def main():
 
@@ -25,18 +25,16 @@ def main():
     original_format = "npy"
     save_format = "txt"
 
-    # folder_list = ["cube-sliding", "cube-stationary", 
-    #                "cylinder-sliding", "cylinder-stationary",
-    #                "noise-grasp", "noise-grasp-stationary", "noise-stationary", 
-    #                "push-to-thumb", 
-    #                "sphere-sliding", "sphere-stationary"]
-
-    # finger_list = ["thumb", "index", "middle", "ring", "little"]
-
-    folder_list = ["cylinder-filter"]
-
+    ### NO FILTRO 
+    folder_list = ["cube-sliding", "cube-stationary", 
+                   "cylinder-sliding", "cylinder-stationary", "cylinder-filter-1", "cylinder-filter-2",
+                   "noise-grasp", "noise-grasp-stationary", "noise-stationary", 
+                   "push-to-thumb", 
+                   "sphere-sliding", "sphere-stationary",
+                   ]
+    
     finger_list = ["thumb", "index", "middle", "ring", "little", 
-                   "filtered_thumb", "filtered_index", "filtered_middle", "filtered_ring", "filtered_little" ]
+                    "filtered-thumb", "filtered-index", "filtered-middle", "filtered-ring", "filtered-little" ]
 
 
     taxel_list = list(range(8))
@@ -50,13 +48,15 @@ def main():
                 CreateFolder(save_folder_path)
 
                 load_file_path = rf"{project_path}_{original_format}\{folder}\{finger}.{original_format}" 
-                save_file_path = rf"{save_folder_path}\{finger}_t{taxel}.{save_format}"
+                save_file_path = rf"{save_folder_path}\{finger}-t{taxel}.{save_format}"
 
                 print(load_file_path)
                 print(save_file_path)
                 print('----')
 
-                SaveNewFormat(load_file_path, taxel, save_file_path)
+                if os.path.exists(load_file_path):
+                    SaveNewFormat(load_file_path, taxel, save_file_path)
+                    print("SAVED")
 
 if __name__ == "__main__":
     main()
