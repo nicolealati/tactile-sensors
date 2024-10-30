@@ -1,62 +1,88 @@
 %% ALGORITMO PER L'IDENTIFICAZIONE DEL GRASP DA SEGNALE
 clc, clear all
 
+clc, clear all
+
 folder = "signals_txt";
-test = "cylinder-sliding";
-disp(' '), disp([test])
+test = "cylinder-stationary";
+finger = "middle";
 
-save_fig = 1;
+filter_bool = 0;
+f = funcUseFilter(filter_bool);
+finger = sprintf("%s%s", f, finger);
 
-% INIZIALIZZAZIONE variabili/parametri per l'identificazione del grasp
-taxel = 1:8; % In python, da 0 a 7
-fs = 250;
+disp(' '), disp([test, finger])
 
-% Filtro passa-banda
-% fc = [0.03, 0.3];
-fc = [0.03 0.5];
-order = 2;
-type = 'bandpass';
-limit = 30;
+save_fig = 0;
 
 threshold_ampiezza = 1;
 threshold_samples = 1500;
 threshold_ampiezza_2 = threshold_ampiezza*0.4;
 tare = 1000;
 
-disp(threshold_samples)
-disp(threshold_ampiezza)
+disp(threshold_samples), disp(threshold_ampiezza)
 
-finger = "thumb";
-[n_samples, ~] = size(csvread(fullfile(folder, test, sprintf("%s_t%d.txt", finger, 0))));
-all_thumb = funcLoadTxt(folder, test, finger, taxel, n_samples);
+taxel = 1:8; % In python, da 0 a 7
+fs = 250;
 
-finger = "index";
-all_index = funcLoadTxt(folder, test, finger, taxel, n_samples);
+% Filtro passa-banda
+% fc = [0.03, 0.3];
+fc = [0.02 0.5];
+order = 2;
+type = 'bandpass';
+limit = 30;
 
-finger = "middle";
-all_middle = funcLoadTxt(folder, test, finger, taxel, n_samples);
+if filter_bool
+    limit = limit/2;
+end
+  
+%%% LOAD SEGNALI e FILTRAGGIO
+[n_samples, ~] = size(csvread(fullfile(folder, test, sprintf("%s-t%d.txt", finger, 0))));
 
-all_signals = [all_thumb; all_index; all_middle];
+% Pre-allocazione della matrice (8x n_samples) per i segnali
+all_signals = zeros(length(taxel), n_samples);
 
+% #RIGA = #TASSELLO (TASSELLO-1 per Python)
+for t = taxel
+
+    % Definizione del path in cartella
+    txt_path = fullfile(folder, test, sprintf("%s-t%d.txt", finger, t-1));
+
+    % Salvo il segnale in variabile temporanea
+    temp_signal = csvread(txt_path);
+
+    % Salvo segnali (grezzo, filtrato, valore assoluto del filtrato
+    all_signals(t, :) = round(temp_signal');
+
+end
 
 %%% MEDIA
 mean_signal = mean(all_signals, 1);
-filt_mean_signal = funcButter(mean_signal, order, fc, fs, type);
-abs3_filt_mean_signal = abs(filt_mean_signal).^3;
 
-fig1 = figure(1);
+% Applico filtro (se serve)
+if filter_bool % filtro già applicato onlone
+    filt_signal = mean_signal; 
+else % filtro non applicato online
+    filt_signal = funcButter(mean_signal, order, fc, fs, type);
+end
+abs3_signal = abs(filt_signal).^3;
+
+n_figure = 1;
+fig1 = figure(n_figure);
 fig1.WindowState = 'maximized';
 clf
 hold on, grid on
 
 xlim([0,n_samples]), ylim([-0.5*limit, limit])
 plot(mean_signal)
-plot(filt_mean_signal, 'LineWidth', 1)
-plot(abs3_filt_mean_signal, 'LineWidth', 1.5)
+plot(filt_signal, 'LineWidth', 1)
+plot(abs3_signal, 'LineWidth', 1.5)
 yline(threshold_ampiezza,'r-', 'LineWidth', 1.8)
 yline(threshold_ampiezza_2,'r-.', 'LineWidth', 1.2)
 
-algoritm_signal = abs3_filt_mean_signal;
+
+%%% ALGORITMO CON ABS^3
+algoritm_signal = abs3_signal;
 
 grasp = 0;
 n_grasp  = 0;
@@ -113,6 +139,7 @@ for n = 1:n_samples
                 xregion(n-tare, n, 'FaceColor', 'g', 'FaceAlpha', 0.5)
                 plot(n-tare:n, algoritm_signal(n-tare:n), 'Color', 'g', 'LineWidth', 2)
 
+
             end
         else
             counter_release = 0;
@@ -121,15 +148,23 @@ for n = 1:n_samples
 
 end
 
-text(0, 1.10*limit, sprintf('TEST = %s, FINGER = thumb+index+middle', test), ...
+text(0, 1.10*limit, sprintf('TEST = %s, FINGER = %s', test, finger), ...
     'FontWeight','bold', FontSize=10)
 text(0, 1.06*limit, sprintf('Th Samples = %d, Th Amp = %.2f', threshold_samples, threshold_ampiezza), ...
     'FontWeight','normal', FontSize=8)
 
+folder_save = sprintf('figures/fig-grasp-id-abs3-mean-taxels/s(%d)-a(%.2f)', threshold_samples, threshold_ampiezza);
+name_figure = sprintf('%s-%s-s(%d)a(%.2f).png', test, finger, threshold_samples, threshold_ampiezza);
+
+funcSaveFigure(save_fig, n_figure, folder_save, name_figure, @funcCreateFolder)
+    % close all
+    
+
+
 if save_fig
-    folder_save = sprintf('figures/grasp-identification-mean-abs3-all-finger/s%d-a%.2f', threshold_samples, threshold_ampiezza);
+    
     funcCreateFolder(folder_save)
-    fpath_save = fullfile(folder_save, sprintf('%s-all-s%d-a%.2f.png', test, threshold_samples, threshold_ampiezza))
+    fpath_save = fullfile(folder_save, sprintf('%s-%s-s%d-a%.2f.png', test, finger, threshold_samples, threshold_ampiezza))
     saveas(1, fpath_save);
     % close all
 end

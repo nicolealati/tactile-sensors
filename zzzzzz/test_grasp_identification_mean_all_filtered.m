@@ -2,14 +2,21 @@
 clc, clear all
 
 folder = "signals_txt";
-test = "cylinder-filter";
+test = "cylinder-filter-2";
+filter_bool = 0;
 disp(' '), disp([test])
 
-save_fig = 1;
+save_fig = 0;
 
 % INIZIALIZZAZIONE variabili/parametri per l'identificazione del grasp
 taxel = 1:8; % In python, da 0 a 7
 fs = 250;
+
+if filter_bool
+    f = 'filtered_';
+else
+    f = "";
+end
 
 fc = [0.03 0.5];
 order = 2;
@@ -25,16 +32,30 @@ disp(threshold_samples)
 disp(threshold_ampiezza)
 
 finger = "thumb";
-[n_samples, ~] = size(csvread(fullfile(folder, test, sprintf("filtered_%s_t%d.txt", finger, 0))));
+[n_samples, ~] = size(csvread(fullfile(folder, test, sprintf("%s%s_t%d.txt", f, finger, 0))));
 all_thumb = funcLoadTxt(folder, test, finger, taxel, n_samples);
 
-finger = "index";
-all_index = funcLoadTxt(folder, test, finger, taxel, n_samples);
+fig3 = figure(3);
+fig3.WindowState = 'maximized';
+clf
 
-finger = "middle";
-all_middle = funcLoadTxt(folder, test, finger, taxel, n_samples);
+% Per ogni tassello, plot del segnale filtrato e del valore assoluto
+for t = taxel
+    % subplot(4, 2, t), hold on, grid on
+    xlim([0,n_samples])
+    ylim([-limit, limit])
+    plot(all_thumb(t, :))
+end
 
-all_signals = [all_thumb; all_index; all_middle];
+
+% 
+% finger = "index";
+% all_index = funcLoadTxt(folder, test, finger, taxel, n_samples);
+% 
+% finger = "middle";
+% all_middle = funcLoadTxt(folder, test, finger, taxel, n_samples);
+
+% all_signals = [all_thumb; all_index; all_middle];
 
 
 % %%% MEDIA
@@ -42,34 +63,41 @@ mean_signal = mean(all_signals, 1);
 abs3_mean_signal = abs(mean_signal).^3;
 
 filt_mean_signal = funcButter(mean_signal, order, fc, fs, type);
-
-
-abs3_mean_filt_signal = abs(mean_signal).^3;
+abs3_mean_filt_signal = abs(filt_mean_signal).^3;
 
 fig1 = figure(1);
 fig1.WindowState = 'maximized';
 clf
-hold on, grid on
 
-subplot(2,2,1)
-xlim([0,n_samples]), ylim([-0.5*limit, limit])
-plot(mean_signal)
-title('mean-signal')
+% subplot(2,2,1), hold on, grid on
+% limit = 12;
+% xlim([0,n_samples]), ylim([-0.8*limit, limit])
+% plot(mean_signal)
+% title('mean-signal')
+% 
+% % subplot(2,2,2), hold on, grid on
+% limit = 6;
+% xlim([0,n_samples]), ylim([-0.6*limit, limit])
+% plot(filt_mean_signal, 'LineWidth', 1.5)
+% plot(abs3_mean_filt_signal, 'LineWidth', 1)
+% title('filt-mean-signal')
+% 
+% subplot(2,2,3), hold on, grid on
+% limit = 700;
+% xlim([0,n_samples]), ylim([-0.1*limit, limit])
+% plot(abs3_mean_signal)
+% title('abs3-mean-signal')
+% 
+% subplot(2,2,4), hold on, grid on
+% limit = 6;
+% xlim([0,n_samples]), ylim([-0.6*limit, limit])
+% plot(filt_mean_signal, 'LineWidth', 1)
+% plot(abs(filt_mean_signal), 'k', 'LineWidth', 1)
+% plot(abs3_mean_filt_signal, 'LineWidth', 1.5)
+% title('abs3-mean-filt-signal')
+% 
 
-subplot(2,2,2)
-xlim([0,n_samples]), ylim([-0.5*limit, limit])
-plot(filt_mean_signal)
-title('fil-mean-signal')
 
-subplot(2,2,3)
-xlim([0,n_samples]), ylim([-0.5*limit, limit])
-plot(abs3_mean_signal)
-title('abs3-mean-signal')
-
-subplot(2,2,4)
-xlim([0,n_samples]), ylim([-0.5*limit, limit])
-plot(abs3_mean_filt_signal)
-title('abs3-mean-filt-signal')
 
 % yline(threshold_ampiezza,'r-', 'LineWidth', 1.8)
 % yline(threshold_ampiezza_2,'r-.', 'LineWidth', 1.2)

@@ -6,7 +6,7 @@ folder = "signals_txt";
 test = "cylinder-stationary";
 finger = "middle";
 
-filter_bool = 0;
+filter_bool = 1 ;
 f = funcUseFilter(filter_bool);
 finger = sprintf("%s%s", f, finger);
 
@@ -17,6 +17,8 @@ save_fig = 0;
 threshold_ampiezza_vect = 1.8;
 threshold_samples = 1500;
 disp(threshold_samples), disp(threshold_ampiezza_vect)
+
+tare = 1000; 
 
 taxel = 1:8; % In python, da 0 a 7
 fs = 250;
@@ -67,7 +69,7 @@ for t = taxel
     abs_signals(t, :) = abs(filt_signals(t, :));
     rms_filtered_signals(t, :) = filt_signals(t, :).^2;
 end
-
+%%
 %%% ALGORITMO
 algoritm_signals = abs_signals;
 n_figure = 1;
@@ -144,7 +146,7 @@ for threshold_ampiezza = threshold_ampiezza_vect
                         text(round(n+start_grasp)/2, 1.001*limit, 'GRASP','Color','b','FontWeight','normal', FontSize=6, ...
                             HorizontalAlignment='center', VerticalAlignment='baseline')
                         % Regione della tara
-                        xregion(n-1000, n, 'FaceColor','g', 'FaceAlpha', 0.2)
+                        xregion(n-tare, n, 'FaceColor','g', 'FaceAlpha', 0.2)
                     end
 
                     % Plot fine grasp nel tasssello identificato e il

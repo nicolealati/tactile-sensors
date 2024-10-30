@@ -2,19 +2,25 @@
 clc, clear all
 
 folder = "signals_txt";
-test = "sphere-sliding";
-finger = "middle";
-disp(' '), disp([test, finger])
+test = "cylinder-filter";
+disp(' '), disp([test])
 
-save_fig = 0;
+filter_bool = 0;
+save_fig_bool = 0;
 
 % INIZIALIZZAZIONE variabili/parametri per l'identificazione del grasp
 taxel = 1:8; % In python, da 0 a 7
 fs = 250;
 
+if filter_bool
+    f = 'filtered_'
+else
+    f = ""
+end
+
 % Filtro passa-banda
 % fc = [0.03, 0.3];
-fc = [0.02 0.5];
+fc = [0.03 0.5];
 order = 2;
 type = 'bandpass';
 limit = 30;
@@ -27,25 +33,18 @@ tare = 1000;
 disp(threshold_samples)
 disp(threshold_ampiezza)
 
-%%% LOAD SEGNALI e FILTRAGGIO
-[n_samples, ~] = size(csvread(fullfile(folder, test, sprintf("%s_t%d.txt", finger, 0))));
+finger = "thumb";
+[n_samples, ~] = size(csvread(fullfile(folder, test, sprintf("%%s_t%d.txt", f, finger, 0))));
+all_thumb = funcLoadTxt(folder, test, finger, taxel, n_samples);
 
-% Pre-allocazione della matrice (8x n_samples) per i segnali
-all_signals = zeros(length(taxel), n_samples);
+finger = "index";
+all_index = funcLoadTxt(folder, test, finger, taxel, n_samples);
 
-% #RIGA = #TASSELLO (TASSELLO-1 per Python)
-for t = taxel
+finger = "middle";
+all_middle = funcLoadTxt(folder, test, finger, taxel, n_samples);
 
-    % Definizione del path in cartella
-    txt_path = fullfile(folder, test, sprintf("%s_t%d.txt", finger, t-1));
+all_signals = [all_thumb; all_index; all_middle];
 
-    % Salvo il segnale in variabile temporanea
-    temp_signal = csvread(txt_path);
-
-    % Salvo segnali (grezzo, filtrato, valore assoluto del filtrato
-    all_signals(t, :) = round(temp_signal');
-
-end
 
 %%% MEDIA
 mean_signal = mean(all_signals, 1);
@@ -64,8 +63,6 @@ plot(abs3_filt_mean_signal, 'LineWidth', 1.5)
 yline(threshold_ampiezza,'r-', 'LineWidth', 1.8)
 yline(threshold_ampiezza_2,'r-.', 'LineWidth', 1.2)
 
-
-%%% ALGORITMO CON ABS^3
 algoritm_signal = abs3_filt_mean_signal;
 
 grasp = 0;
@@ -123,7 +120,6 @@ for n = 1:n_samples
                 xregion(n-tare, n, 'FaceColor', 'g', 'FaceAlpha', 0.5)
                 plot(n-tare:n, algoritm_signal(n-tare:n), 'Color', 'g', 'LineWidth', 2)
 
-
             end
         else
             counter_release = 0;
@@ -132,15 +128,15 @@ for n = 1:n_samples
 
 end
 
-text(0, 1.10*limit, sprintf('TEST = %s, FINGER = %s', test, finger), ...
+text(0, 1.10*limit, sprintf('TEST = %s, FINGER = thumb+index+middle', test), ...
     'FontWeight','bold', FontSize=10)
 text(0, 1.06*limit, sprintf('Th Samples = %d, Th Amp = %.2f', threshold_samples, threshold_ampiezza), ...
     'FontWeight','normal', FontSize=8)
 
-if save_fig
-    folder_save = sprintf('figures/grasp-identification-mean-abs3/s%d-a%.2f', threshold_samples, threshold_ampiezza);
+if save_fig_bool
+    folder_save = sprintf('figures/grasp-identification-mean-abs3-all-finger/s%d-a%.2f', threshold_samples, threshold_ampiezza);
     funcCreateFolder(folder_save)
-    fpath_save = fullfile(folder_save, sprintf('%s-%s-s%d-a%.2f.png', test, finger, threshold_samples, threshold_ampiezza))
+    fpath_save = fullfile(folder_save, sprintf('%s-all-s%d-a%.2f.png', test, threshold_samples, threshold_ampiezza))
     saveas(1, fpath_save);
     % close all
 end
