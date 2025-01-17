@@ -1,0 +1,8 @@
+prefix=/home/comau/ros/sensor_ws/install
+
+Name: sensor_controller
+Description: Description of sensor_controller
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: 
