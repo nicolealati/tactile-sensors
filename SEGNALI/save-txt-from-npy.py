@@ -45,6 +45,8 @@ def main():
             for taxel in taxel_list:
 
                 save_folder_path = rf"{project_save}_{save_format}\{folder}" 
+                CreateFolder(save_folder_path)
+
                 load_file_path = rf"{project_path}_{original_format}\{folder}\{finger}.{original_format}" 
                 save_file_path = rf"{save_folder_path}\{finger}-t{taxel}.{save_format}"
 
@@ -53,7 +55,6 @@ def main():
                 print('----')
 
                 if os.path.exists(load_file_path):
-                    CreateFolder(save_folder_path)
                     SaveNewFormat(load_file_path, taxel, save_file_path)
                     print("SAVED")
 
