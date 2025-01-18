@@ -6,10 +6,10 @@ import os
 from matplotlib.patches import Rectangle
 from matplotlib.transforms import Affine2D
 
+# Clean terminal
 def CleanTerminal():
     if os.name == 'nt':
         _ = os.system('cls')
-
 CleanTerminal()
 
 # Define the time and positions for the axes
@@ -19,7 +19,8 @@ y = np.array([0, 0, 0, 1, 1])  # Position of the x-axis (Y coordinate)
 angle = np.array([0, 0, np.pi/2, np.pi/2, 0])  # Orientation of the rectangle in radians
 
 # Interpolate the data for smooth movement
-time_interpolated = np.linspace(0, t[-1], 1000)  # 1000 interpolated steps
+n = 1000
+time_interpolated = np.linspace(0, t[-1], n)  # 1000 interpolated steps
 x_interpolated = np.interp(time_interpolated, t, x)
 y_interpolated = np.interp(time_interpolated, t, y)
 angle_interpolated = np.interp(time_interpolated, t, angle)
@@ -84,7 +85,7 @@ def update(frame):
     # Set labels and title
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
-    ax.set_title("Axis Movement Animation")
+    ax.set_title(f"SLIDING\nw/o pressure")
     ax.set_xlim(-1.5, 1.5)
     ax.set_ylim(-1.5, 1.5)
     ax.axis(False)

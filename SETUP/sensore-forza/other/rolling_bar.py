@@ -52,20 +52,21 @@ def update(frame):
     ax.fill(ellipse_x, ellipse_y, color='lightblue', alpha=0.5)
 
     # Plot the red lines representing the current X and Y axis positions
-    ax.axhline(y_interpolated[frame], color='red', linewidth=1, linestyle='-')
-    ax.axvline(x_interpolated[frame], color='red', linewidth=1, linestyle='-')
+    ax.axhline(y_interpolated[frame], color='red', linewidth=2, linestyle='-')
+    ax.axvline(x_interpolated[frame], color='red', linewidth=2, linestyle='-')
     
     # Add text annotations for the axes' positions
-    ax.text(-1.1, y_interpolated[frame], f'{y_interpolated[frame]:.2f}', color='red', fontsize=10, ha='left', va='center')
-    ax.text(x_interpolated[frame], -1.1, f'{x_interpolated[frame]:.2f}', color='red', fontsize=10, ha='center', va='bottom')
+    ax.text(-1.5, y_interpolated[frame]+0.1, f'{y_interpolated[frame]:.2f}', color='red', fontsize=10, ha='center', va='top')
+    ax.text(x_interpolated[frame]+0.1, -1.5, f'{x_interpolated[frame]:.2f}', color='red', fontsize=10, ha='left', va='center')
     
     # Add time label
-    ax.text(0.9, -1.1, f"Time: {time_interpolated[frame]:.2f}s", color='black', fontsize=12, ha='right', va='bottom')
+    elapsed_time = time_interpolated[frame]
+    ax.text(0, -1.6, f"Time: {elapsed_time:.2f}s", color='black', fontsize=12, ha='center', va='center')
     
     # Set labels and title
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
-    ax.set_title("Axis Movement Animation")
+    ax.set_title("ROLLING (bar)")
     ax.set_xlim(-1.5, 1.5)
     ax.set_ylim(-1.5, 1.5)
     ax.axis(False)

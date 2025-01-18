@@ -58,5 +58,7 @@ plt.plot(time, signal)
 plt.title("Generated Signal")
 plt.grid(False)
 plt.xlabel("Time [s]")
-plt.ylabel("Intensity")
+plt.ylabel("Force [N]")
 plt.show()
+
+print(len(signal))

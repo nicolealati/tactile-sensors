@@ -50,20 +50,20 @@ def update(frame):
     plt.gca().add_patch(plt.Rectangle((-1, -1), rect_base, rect_height, color='lightblue', alpha=0.5), )
 
     # Plot the red lines representing the current X and Y axis positions
-    ax.plot(x_interpolated[frame], y_interpolated[frame], 'ro', markersize=10)
+    ax.plot(x_interpolated[frame], y_interpolated[frame], 'ro', markersize=30)
     
     # Add text annotations for the axes' positions
-    ax.text(-1.1, y_interpolated[frame], f'{y_interpolated[frame]:.2f}', color='red', fontsize=10, ha='left', va='center')
-    ax.text(x_interpolated[frame], -1.2, f'{x_interpolated[frame]:.2f}', color='red', fontsize=10, ha='center', va='bottom')
+    ax.text(-1.1, y_interpolated[frame], f'{y_interpolated[frame]:.2f}', color='red', fontsize=10, ha='center', va='center')
+    ax.text(x_interpolated[frame], -1.1, f'{x_interpolated[frame]:.2f}', color='red', fontsize=10, ha='left', va='center')
     
     # Add time label
-    ax.text(0.9, -1.1, f"Time: {time_interpolated[frame]:.2f}s", color='black', fontsize=12, ha='right', va='bottom')
+    ax.text(0.0, -1.2, f"Time: {time_interpolated[frame]:.2f}s", color='black', fontsize=12, ha='center', va='center')
     
     # Set labels and title
      
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
-    ax.set_title("Axis Movement Animation")
+    ax.set_title(f"SLIDING \npoint")
     ax.set_xlim(-1.5, 1.5)
     ax.set_ylim(-1.5, 1.5)
     ax.axis(False)
