@@ -11,7 +11,7 @@ from matplotlib.transforms import Affine2D
 excel_file = "pattern.xlsx"
 test = "ROLLING"
 
-class SlidingAnimation:
+class RollingAnimation:
     def __init__(self, excel_file, sheet_name):
         
         self.excel_file = excel_file
@@ -20,8 +20,8 @@ class SlidingAnimation:
 
        # Figures dimensions
         self.square = [2.5, 2.5]
-        self.ellipse_1 = [0.8, 0.8]
-        self.ellispe_2 = [1, 0.6]
+        self.ellipse_1 = [1, 0.4]
+        self.ellispe_2 = [0.8, 0.8]
         self.rect = [0.1, 0.25]
         self.line = [self.rect[0], 0.01]
         self.scale_line = 1.5
@@ -34,9 +34,7 @@ class SlidingAnimation:
 
         self.LoadPatterns(self.df_pattern)
         self.CalculateInterpolation()
-        
-        print(self.angle_rot_1)
-        print(self.angle_rot_2)
+
         ### 
         # Example current force
         self.force_x = np.linspace(0, 2*np.pi, self.n_frame)
@@ -48,7 +46,7 @@ class SlidingAnimation:
         '''    
 
         # Create the figure
-        self.fig, self.axs = plt.subplots(1, 2, figsize=(10, 8))
+        self.fig, self.axs = plt.subplots(1, 2, figsize=(18, 8))
         for ax in self.axs:
             ax.axis(False)
 
@@ -149,8 +147,8 @@ class SlidingAnimation:
         self.axs[1].text(0, -1.4, f'{180/np.pi*self.angle_interp_2[frame]:.0f}°', color='red', fontsize=15, ha='center', va='center')
         
         # Set titles for each subplot
-        self.axs[0].set_title("FRONTAL VISION")
-        self.axs[1].set_title("LATERAL VISION")
+        self.axs[0].set_title("LATERAL VISION")
+        self.axs[1].set_title("FRONTAL VISION")
 
         for ax in self.axs:
             ax.set_xlim(-2, 2)
@@ -163,5 +161,5 @@ class SlidingAnimation:
         plt.show()
 
 if __name__ == '__main__':
-    animation = SlidingAnimation(excel_file, test)
+    animation = RollingAnimation(excel_file, test)
     animation.Run()

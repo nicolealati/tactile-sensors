@@ -78,9 +78,7 @@ class RollingInterface:
     def AddTransformation(self, figure, rot, ax):
         if ax is None:
             raise ValueError("Error ax.")
-
         transform = (Affine2D().rotate(rot) + ax.transData)
-        
         figure.set_transform(transform)
         ax.add_patch(figure)
 
