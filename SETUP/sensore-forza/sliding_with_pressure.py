@@ -10,7 +10,7 @@ from matplotlib.transforms import Affine2D
 excel_file = "pattern.xlsx"
 test = "SLIDING"
 
-class SlidingAnimation:
+class SlidingInterface:
     def __init__(self, excel_file, sheet_name):
         
         self.excel_file = excel_file
@@ -18,12 +18,10 @@ class SlidingAnimation:
         self.start_time = None
 
        # Figures dimensions
-        self.base_square = 2.5
-        self.height_square = 2.5
-        self.base_rect = 0.1
-        self.height_rect = 0.25
-        self.base_line = self.base_rect
-        self.height_line = 0.01
+        self.square = [2.5, 2.5]
+        self.rect = [0.1, 0.25]
+        self.line = [self.rect[0], 0.01]
+
         self.n_frame = 1000
 
         # Load patterns from excel file
@@ -98,20 +96,20 @@ class SlidingAnimation:
         y_center = self.y_interp[frame]
 
         # Ground rectangle
-        self.ax.add_patch(Rectangle((-self.base_square/2, -self.height_square/2), self.base_square, self.height_square, color='lightblue', alpha=0.5))
+        self.ax.add_patch(Rectangle((-self.square[0]/2, -self.square[1]/2), self.square[0], self.square[1], color='lightblue', alpha=0.5))
 
         # Moving figures
-        box = Rectangle((-self.base_rect, -self.height_rect), self.base_rect*2, self.height_rect*2, color='green')
+        box = Rectangle((-self.rect[0], -self.rect[1]), self.rect[0]*2, self.rect[1]*2, color='green')
         self.AddTransformation(box, x_center, y_center, 0)
 
         self.trans_force = self.applied_force[frame]-self.required_force
-        self.scaled_force = self.trans_force*self.height_rect/self.tolerance
+        self.scaled_force = self.trans_force*self.rect[1]/self.tolerance
     
 
-        line = Rectangle((-1.5*self.base_line-self.base_line/2, 0), self.base_line*4, self.height_line, color='black')
+        line = Rectangle((-1.5*self.line[0]-self.line[0]/2, 0), self.line[0]*4, self.line[1], color='black')
         self.AddTransformation(line, x_center, y_center+self.scaled_force, 0)
 
-        rect = Rectangle((-self.base_rect/2, -self.height_rect/2), self.base_rect, self.height_rect, color='red', alpha=0.7)
+        rect = Rectangle((-self.rect[0]/2, -self.rect[1]/2), self.rect[0], self.rect[1], color='red', alpha=0.7)
         self.AddTransformation(rect, x_center, y_center, self.angle_interp[frame])
 
         # Add text annotations for the axes' positions
@@ -136,5 +134,5 @@ class SlidingAnimation:
         plt.show()
 
 if __name__ == '__main__':
-    animation = SlidingAnimation(excel_file, test)
+    animation = SlidingInterface(excel_file, test)
     animation.Run()
