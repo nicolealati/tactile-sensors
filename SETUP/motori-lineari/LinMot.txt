@@ -1,3 +1,0 @@
-Controllo in forza
-Guadagno tensione-forza
-Fondo scala-fondo scala (11 N per 10 V di ingresso)
