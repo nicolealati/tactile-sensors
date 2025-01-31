@@ -1,8 +1,0 @@
-prefix=/home/comau/ros/sensor_ws/devel
-
-Name: sensor_controller
-Description: Description of sensor_controller
-Version: 0.0.0
-Cflags: -I/home/comau/ros/sensor_ws/devel/include
-Libs: -L${prefix}/lib 
-Requires: 

@@ -1,2 +1,0 @@
-set(sensor_controller_MESSAGE_FILES "/home/comau/ros/sensor_ws/src/sensor_controller/msg/Piezosensor.msg;/home/comau/ros/sensor_ws/src/sensor_controller/msg/Forcesensor.msg")
-set(sensor_controller_SERVICE_FILES "/home/comau/ros/sensor_ws/src/sensor_controller/srv/Tare.srv;/home/comau/ros/sensor_ws/src/sensor_controller/srv/Tared.srv;/home/comau/ros/sensor_ws/src/sensor_controller/srv/Integral.srv;/home/comau/ros/sensor_ws/src/sensor_controller/srv/Record.srv")
