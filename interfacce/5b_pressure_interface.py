@@ -6,11 +6,11 @@ import os
 if os.name == 'nt':
     os.system('cls')
 
-class ImpulseInterface:
+class PressureInterface:
     def __init__(self):
         self.test = "pressure"
         self.load_dir = rf"D:\GitHub\tactile-sensors\SETUP\sensore-forza\sequences\{self.test}"
-        self.filename = f"{self.test}_sequence.npy"
+        self.filename = f"{self.test}_sequence_new.npy"
 
         self.loaded_signal = np.load(f"{self.load_dir}\{self.filename}")
         
@@ -77,7 +77,7 @@ class ImpulseInterface:
 
             self.ax.set_xlim(self.start_window, self.end_window)
             self.ax.set_ylim(-1, 1.2*max(self.signal))
-            self.ax.set_title("IMPULSE")
+            self.ax.set_title("PRESSURE")
             self.ax.set_xticks([]), self.ax.set_yticks([])
 
             self.ax.text(self.center, -1.5, f"Time: {self.elapsed_time:.2f}s", color='black', fontsize=12, ha='center', va='center')
@@ -91,5 +91,5 @@ class ImpulseInterface:
         
 
 if __name__ == "__main__":
-    interface = ImpulseInterface()
+    interface = PressureInterface()
     interface.Run()

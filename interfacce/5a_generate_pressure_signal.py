@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import os
 
 # Define values
-force_values = [2, 4, 6] 
-rise_values = [3, 2, 1] 
-stay_time = [6]
+force_values = [2, 4, 6, 8] # N
+rise_values = [4, 3, 2] # s
+stay_time = [7]
 freq_signal = 500
 
 trigger_idle = 0
@@ -13,18 +13,26 @@ trigger_force = [e*10  for e in force_values]
 trigger_rise =  [e   for e in rise_values]
 trigger_fall =  [-e  for e in rise_values]
 
-dir_signal  = r"D:\GitHub\tactile-sensors\SETUP\sensore-forza\sequences\pressure"
-dir_trigger = r"D:\GitHub\tactile-sensors\SETUP\sensore-forza\sequences\pressure\trigger_pressure"
+dir_signal  = r"D:\GitHub\tactile-sensors\interfacce\sequences\pressure"
+dir_trigger = r"D:\GitHub\tactile-sensors\interfacce\sequences\pressure\trigger_pressure_new"
 
 if os.name == 'nt':
-            os.system('cls')
+    os.system('cls')
+
 
 def GenerateSignal(force_values, rise_values, stay_time, freq = freq_signal):
     
     time_step = 1/freq
+    start_time = 0
     signal = []
     time = []
     trigger = []
+    for t in range(10*freq):
+        signal.append(0)
+        trigger.append(trigger_idle)
+        time.append(start_time)
+        start_time += time_step
+     
     
     for t in stay_time:
         for ind_rise, v_rise in enumerate(rise_values):
@@ -36,7 +44,7 @@ def GenerateSignal(force_values, rise_values, stay_time, freq = freq_signal):
                     rise_time_duration = v_rise*(v_force/force_values[0])  # Scale subsequent x values accordingly
                 
                 # Idle time before the rise: 5 seconds of 0 intensity
-                stay_dur = 5
+                stay_dur = 7
                 idle_time = np.zeros(int(stay_dur*freq))  # 5 seconds of 0
                 temp_idle_trigger = [trigger_idle]*int(stay_dur*freq)
                 
@@ -53,10 +61,10 @@ def GenerateSignal(force_values, rise_values, stay_time, freq = freq_signal):
                 temp_fall_trigger = [trigger_fall[ind_rise]]*int(rise_time_duration*freq)
 
                 # Concatenate all phases together
-                full_signal = np.concatenate([idle_time, rise_time, constant_time, fall_time, idle_time])
+                full_signal = np.concatenate([idle_time, rise_time, constant_time, fall_time])
                 temp_full_trigger = np.concatenate([temp_idle_trigger, 
                                                     temp_rise_trigger, temp_const_trigger, 
-                                                    temp_fall_trigger, temp_idle_trigger])
+                                                    temp_fall_trigger])
                 
 
                 signal.extend(full_signal)
@@ -72,32 +80,36 @@ def GenerateSignal(force_values, rise_values, stay_time, freq = freq_signal):
 # Generate the signal
 time, generated_signal, trigger = GenerateSignal(force_values, rise_values, stay_time)
 
+
 # Scompongo i trigger
 trigger_unique = []
 trigger_unique.append(trigger_idle)
 for c, r, f in zip(trigger_force, trigger_rise, trigger_fall): 
     trigger_unique.extend([r, c, f])
+trigger_unique.append(trigger_force[-1])
+print(trigger_unique)
 #trigger_unique = [trigger_idle] + trigger_force + [val for pair in zip(trigger_rise, trigger_fall) for val in pair]
 trigger_list = [(trigger == value).astype(int) for value in trigger_unique]
 
-print(trigger_unique)
 plt.plot(time, generated_signal)
 #plt.show()
 
 # Plot the signal to visualize
-fig, axs = plt.subplots(10, 1)
+fig, axs = plt.subplots(12, 1)
 for ind_ax, ax in enumerate(axs): 
-    ax.plot(time, trigger_list[ind_ax])
-    ax.plot(time, generated_signal)
+    if ind_ax < len(trigger_list):
+        ax.plot(time, trigger_list[ind_ax])
+        ax.plot(time, generated_signal)
 axs[-1].plot(time, generated_signal)
 #plt.show()
 
 def SaveData(save_dir, name, array_to_save):
+    print(save_dir)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     np.save(f"{save_dir}/{name}", array_to_save)
 
-SaveData(dir_signal, 'pressure_sequence.npy', [time, generated_signal])
+SaveData(dir_signal, 'pressure_sequence_new.npy', [time, generated_signal])
 SaveData(dir_trigger, 'time.npy', time)
 
 # 0 = stop
@@ -117,3 +129,5 @@ SaveData(dir_trigger, 'trigger_fall_2.npy', trigger_list[6])
 SaveData(dir_trigger, 'trigger_rise_3.npy', trigger_list[7])
 SaveData(dir_trigger, 'trigger_const_3.npy', trigger_list[8])
 SaveData(dir_trigger, 'trigger_fall_3.npy', trigger_list[9])
+
+SaveData(dir_trigger, 'trigger_const_4.npy', trigger_list[10])
