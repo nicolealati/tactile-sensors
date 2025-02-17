@@ -38,5 +38,5 @@ prob = model.decode(np.array([0, 1, 0, 1]).reshape(4,1))
 print(np.exp(prob[0]))
 
 # Genarate new samples
-X = model.sample(100)
-print(X)
+Xnew = model.sample(100)
+print(Xnew)
