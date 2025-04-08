@@ -64,7 +64,7 @@ if bool_save
     disp('SAVED')
 end
 
-%% load signals ar10
+%% Load signals ar10
 folder = "pressure AR10";
 type = 'stft';
 time_stft = load(fullfile(folder, strcat(type, ' ar10 pred_time.txt')));
@@ -101,12 +101,10 @@ ylabel('Force (N)', 'FontSize', size, 'FontName', font)
 ylim([-1, 7])
 xlim([0,274])
 
-
 % title('Vertical force vs Predicted force values', 'FontSize', size+2, 'FontName', font, 'FontWeight', 'BOLD')
 % subtitle("With robotic finger", 'FontSize', size+3, 'FontName', font)
 % annotation('textbox', [0.085, 0.25, 0.1, 0.05], 'String', 'b', 'FontWeight', 'bold', ...
 %     'EdgeColor', 'none', 'FontSize', size+2, 'FontName', 'Times New Romans', 'HorizontalAlignment', 'left');
-
 
 name_figure = 'HFR_regression_ar10.pdf';
 

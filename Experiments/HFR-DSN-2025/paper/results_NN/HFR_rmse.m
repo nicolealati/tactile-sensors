@@ -63,6 +63,7 @@ true_ar10_wavelet_interp = interp1(1:length(true_ar10_wavelet), true_ar10_wavele
 rmse_ar10_wavelet = rmse(pred_ar10_wavelet_interp, true_ar10_wavelet_interp);
 
 %%   GROUP 
+
 with_ar10 = [rmse_ar10_raw rmse_ar10_stft, rmse_ar10_wavelet] 
 without_ar10 = [rmse_hand_raw, rmse_hand_stft, rmse_hand_wavelet]
 
